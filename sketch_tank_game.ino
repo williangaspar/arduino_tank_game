@@ -17,10 +17,6 @@ using namespace NEnemyTank;
 #define BUZZER A4
 #define BTN_SHOOT A5
 
-#define TONE_SHOOT 600
-#define TONE_HIT 300
-#define TONE_BEGIN 1400
-
 #define RS 12
 #define EN 11
 #define D4 5
@@ -28,7 +24,11 @@ using namespace NEnemyTank;
 #define D6 3
 #define D7 2
 
-#define SPRITE_BULLET 5
+const int TONE_SHOOT = 600;
+const int TONE_HIT = 300;
+const int TONE_BEGIN = 1400;
+
+const int8_t SPRITE_BULLET = 5;
 
 LiquidCrystal lcd(RS, EN, D4, D5, D6, D7);
 
@@ -82,16 +82,16 @@ void resetGame() {
   lcd.clear();
   tone(BUZZER, TONE_BEGIN, 200);
   lcd.setCursor(LCD_COLUMNS / 2 - 7, LCD_LINES / 2 - 1);
-  lcd.print("TANK GAME 3000");
+  lcd.print(F("TANK GAME 3000"));
   delay(3000);
 }
 
 void gameOver() {
   tone(BUZZER, TONE_BEGIN, 200);
   lcd.setCursor(LCD_COLUMNS / 2 - 5, LCD_LINES / 2 - 1);
-  lcd.print("GAME OVER");
+  lcd.print(F("GAME OVER"));
   lcd.setCursor(LCD_COLUMNS / 2 - 7, LCD_LINES - 1);
-  lcd.print("HIGH SCORE:");
+  lcd.print(F("HIGH SCORE:"));
   lcd.print(score);
   delay(2000);
 }
