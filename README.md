@@ -1,2 +1,4 @@
-# arduino_tank_game
-An Arduino game
+# Arduino tank game
+
+![schematic](tank_game_bb.png)
+
