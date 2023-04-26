@@ -1,12 +1,8 @@
 #include <LiquidCrystal.h>
 
-#include "EnemyTank.h"
+#include "Enemies.h"
 #include "Sprites.h"
 #include "Tank.h"
-
-using namespace NTank;
-using namespace NSprites;
-using namespace NEnemyTank;
 
 #define LCD_COLUMNS 16
 #define LCD_LINES 2
@@ -32,9 +28,14 @@ const int8_t SPRITE_BULLET = 5;
 
 LiquidCrystal lcd(RS, EN, D4, D5, D6, D7);
 
-Tank player;
-TankAction playerAction;
-Tank enemyList[] = {Tank(), Tank(), Tank()};
+Tanks::Tank player;
+Game::Direction playerDirection;
+bool isPlayerShooting = false;
+
+Enemies::EnemyTank enemyList[3] = {
+    Enemies::EnemyTank(),
+    Enemies::EnemyTank(),
+    Enemies::EnemyTank()};
 
 int32_t score = 0;
 
@@ -55,21 +56,17 @@ void setup() {
   pinMode(BUZZER, OUTPUT);
 
   // Register custom chars
-  lcd.createChar(UP, spriteTankUp);
-  lcd.createChar(DOWN, spriteTankDown);
-  lcd.createChar(LEFT, spriteTankLeft);
-  lcd.createChar(RIGHT, spriteTankRight);
-  lcd.createChar(SPRITE_BULLET, spriteBullet);
+  lcd.createChar(Game::UP, Sprites::spriteTankUp);
+  lcd.createChar(Game::DOWN, Sprites::spriteTankDown);
+  lcd.createChar(Game::LEFT, Sprites::spriteTankLeft);
+  lcd.createChar(Game::RIGHT, Sprites::spriteTankRight);
+  lcd.createChar(SPRITE_BULLET, Sprites::spriteBullet);
 }
 
 void resetGame() {
   score = 0;
 
   // Initiate player
-  player.x = 0;
-  player.y = 0;
-  player.direction = RIGHT;
-  player.bullet.isAlive = false;
   player.isAlive = true;
 
   // Initiate enemys
@@ -103,27 +100,27 @@ void readUserInput() {
   }
 
   if (digitalRead(BTN_UP) == LOW) {
-    playerAction = MOVE_UP;
+    playerDirection = Game::UP;
     isButtonPressed = true;
   };
 
   if (digitalRead(BTN_DOWN) == LOW) {
-    playerAction = MOVE_DOWN;
+    playerDirection = Game::DOWN;
     isButtonPressed = true;
   };
 
   if (digitalRead(BTN_LEFT) == LOW) {
-    playerAction = MOVE_LEFT;
+    playerDirection = Game::LEFT;
     isButtonPressed = true;
   }
 
   if (digitalRead(BTN_RIGHT) == LOW) {
-    playerAction = MOVE_RIGHT;
+    playerDirection = Game::RIGHT;
     isButtonPressed = true;
   }
 
   if (digitalRead(BTN_SHOOT) == LOW) {
-    playerAction = SHOOT;
+    isPlayerShooting = true;
     isButtonPressed = true;
   }
 }
@@ -131,78 +128,44 @@ void readUserInput() {
 void gameLogic() {
   executePlayerAction();
   playerCollisionCheck();
-
-  for (auto &e : enemyList) {
-    executeEnemyAction(e);
-    bulletWallCheck(e);
-    tankWallCheck(e);
-  }
+  tickEnemy();
   bulletCollisionCheck();
-}
-
-void playerCollisionCheck() {
-  for (auto &e : enemyList) {
-    tankCollisionCheck(player, e);
-  };
-  tankWallCheck(player);
-  bulletWallCheck(player);
 }
 
 void executePlayerAction() {
   if (isButtonPressed) {
-    switch (playerAction) {
-      case MOVE_UP:
-        moveTank(player, UP);
-        break;
-      case MOVE_DOWN:
-        moveTank(player, DOWN);
-        break;
-      case MOVE_LEFT:
-        moveTank(player, LEFT);
-        break;
-      case MOVE_RIGHT:
-        moveTank(player, RIGHT);
-        break;
-      case SHOOT:
-        if (!player.bullet.isAlive) {
-          tone(BUZZER, TONE_SHOOT, 100);
-          shootBullet(player);
-        }
-        break;
-      default:
-        break;
+    if (isPlayerShooting) {
+      if (!player.bullet.isAlive) {
+        tone(BUZZER, TONE_SHOOT, 100);
+        player.shoot();
+      }
+      isPlayerShooting = false;
+    } else {
+      player.move(playerDirection);
     }
   }
-}
-void executeEnemyAction(Tank &enemy) {
-  if (enemy.isAlive) {
-    tickEnemyTank(enemy);
-    tankCollisionCheck(enemy, player);
-  } else {
-    spawnEnemyTank(enemy, LCD_COLUMNS, LCD_LINES, player);
-  }
+  player.bullet.move(player.bullet.direction);
 }
 
-void bulletWallCheck(Tank &tank) {
-  moveBullet(tank.bullet);
-
-  if (tank.bullet.x < 0 || tank.bullet.x >= LCD_COLUMNS ||
-      tank.bullet.y < 0 || tank.bullet.y >= LCD_LINES) {
-    destroyBullet(tank);
-  }
+void playerCollisionCheck() {
+  for (auto e : enemyList) {
+    player.entityCollisionAvoidance(&e);
+  };
+  player.wallCollisionAvoidance(LCD_COLUMNS, LCD_LINES);
+  player.bullet.wallCollisionAvoidance(LCD_COLUMNS, LCD_LINES);
 }
 
-void tankWallCheck(Tank &tank) {
-  if (tank.x < 0) {
-    tank.x = 0;
-  } else if (tank.x >= LCD_COLUMNS) {
-    tank.x = LCD_COLUMNS - 1;
-  }
-
-  if (tank.y < 0) {
-    tank.y = 0;
-  } else if (tank.y >= LCD_LINES) {
-    tank.y = LCD_LINES - 1;
+void tickEnemy() {
+  for (auto &e : enemyList) {
+    if (e.isAlive) {
+      e.tick();
+      e.bullet.move(e.bullet.direction);
+      e.entityCollisionAvoidance(&player);
+      e.wallCollisionAvoidance(LCD_COLUMNS, LCD_LINES);
+      e.bullet.wallCollisionAvoidance(LCD_COLUMNS, LCD_LINES);
+    } else {
+      e.spawn(LCD_COLUMNS, LCD_LINES, player);
+    }
   }
 }
 
@@ -214,8 +177,8 @@ void bulletCollisionCheck() {
         if (player.bullet.x == e.x &&
             player.bullet.y == e.y) {
           score++;
-          destroyBullet(player);
-          destroyEnemyTank(e);
+          player.bullet.destroy();
+          e.destroy();
           tone(BUZZER, TONE_HIT, 100);
         }
       }
@@ -228,8 +191,8 @@ void bulletCollisionCheck() {
       if (e.bullet.isAlive) {
         if (e.bullet.x == player.x &&
             e.bullet.y == player.y) {
-          destroyBullet(e);
-          player.isAlive = false;
+          e.bullet.destroy();
+          player.destroy();
           gameOver();
           return;
         }

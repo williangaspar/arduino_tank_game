@@ -1,14 +1,16 @@
-#ifndef TANK_FUNCTIONS
-#define TANK_FUNCTIONS
+#ifndef TANK_CLASS
+#define TANK_CLASS
 
-#include <stdint.h>
+#include "Bullet.h"
+#include "Game.h"
 
-namespace NTank {
-enum Direction {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT
+namespace Tanks {
+class Tank : public Game::Entity {
+ public:
+  Bullets::Bullet bullet;
+
+  void shoot();
+  void destroy();
 };
 
 enum TankAction {
@@ -19,27 +21,6 @@ enum TankAction {
   SHOOT
 };
 
-
-struct Bullet {
-  int8_t x;
-  int8_t y;
-  bool isAlive;
-  Direction direction;
-};
-struct Tank {
-  int8_t x;
-  int8_t y;
-  Direction direction;
-  Bullet bullet;
-  bool isAlive;
-};
-
-void moveTank(Tank &tank, Direction direction);
-void tankCollisionCheck(Tank &tank, Tank &otherTank);
-void shootBullet(Tank &tank);
-void moveBullet(Bullet &bullet);
-void destroyBullet(Tank &tank);
-
-}  // namespace NTank
+}  // namespace Tanks
 
 #endif

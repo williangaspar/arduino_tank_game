@@ -1,7 +1,7 @@
 #ifndef SPRITES
 #define SPRITES
 
-namespace NSprites {
+namespace Sprites {
 
 byte spriteTankUp[] = {
     B00000,
