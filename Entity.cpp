@@ -1,4 +1,4 @@
-#include "Game.h"
+#include "Entity.h"
 
 namespace Game {
 void Entity::move(Direction direction) {

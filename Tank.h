@@ -2,7 +2,7 @@
 #define TANK_CLASS
 
 #include "Bullet.h"
-#include "Game.h"
+#include "Entity.h"
 
 namespace Tanks {
 class Tank : public Game::Entity {

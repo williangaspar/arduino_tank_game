@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "Game.h"
+#include "Entity.h"
 
 namespace Tanks {
 void Tank::shoot() {

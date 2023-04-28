@@ -1,7 +1,7 @@
 #ifndef BULLET_CLASS
 #define BULLET_CLASS
 
-#include "Game.h"
+#include "Entity.h"
 
 namespace Bullets {
 class Bullet : public Game::Entity {
