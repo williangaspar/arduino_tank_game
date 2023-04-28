@@ -13,7 +13,7 @@ class Tank : public Game::Entity {
   void destroy();
 };
 
-enum TankAction {
+enum TankAction: uint8_t  {
   MOVE_UP,
   MOVE_DOWN,
   MOVE_LEFT,
