@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 namespace Game {
-enum Direction {
+enum Direction: uint8_t {
   UP,
   DOWN,
   LEFT,
