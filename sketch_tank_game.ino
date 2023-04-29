@@ -24,8 +24,6 @@ const int TONE_SHOOT = 600;
 const int TONE_HIT = 300;
 const int TONE_BEGIN = 1400;
 
-const int8_t SPRITE_BULLET = 5;
-
 LiquidCrystal lcd(RS, EN, D4, D5, D6, D7);
 
 Tanks::Tank player;
@@ -56,11 +54,11 @@ void setup() {
   pinMode(BUZZER, OUTPUT);
 
   // Register custom chars
-  lcd.createChar(Game::UP, Sprites::spriteTankUp);
-  lcd.createChar(Game::DOWN, Sprites::spriteTankDown);
-  lcd.createChar(Game::LEFT, Sprites::spriteTankLeft);
-  lcd.createChar(Game::RIGHT, Sprites::spriteTankRight);
-  lcd.createChar(SPRITE_BULLET, Sprites::spriteBullet);
+  lcd.createChar(Tanks::MOVE_UP, Sprites::spriteTankUp);
+  lcd.createChar(Tanks::MOVE_DOWN, Sprites::spriteTankDown);
+  lcd.createChar(Tanks::MOVE_LEFT, Sprites::spriteTankLeft);
+  lcd.createChar(Tanks::MOVE_RIGHT, Sprites::spriteTankRight);
+  lcd.createChar(Tanks::SHOOT, Sprites::spriteBullet);
 }
 
 void resetGame() {
@@ -213,14 +211,14 @@ void drawFrame() {
 
       if (e.bullet.isAlive) {
         lcd.setCursor(e.bullet.x, e.bullet.y);
-        lcd.write(SPRITE_BULLET);
+        lcd.write(Tanks::SHOOT);
       }
     }
   }
 
   if (player.bullet.isAlive) {
     lcd.setCursor(player.bullet.x, player.bullet.y);
-    lcd.write(SPRITE_BULLET);
+    lcd.write(Tanks::SHOOT);
   }
 }
 
