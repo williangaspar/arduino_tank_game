@@ -39,6 +39,9 @@ int32_t score = 0;
 
 bool isButtonPressed = false;
 
+char currentFrame[LCD_LINES][LCD_COLUMNS];
+char nextFrame[LCD_LINES][LCD_COLUMNS];
+
 void setup() {
   lcd.begin(LCD_COLUMNS, LCD_LINES);
   resetGame();
@@ -64,6 +67,13 @@ void setup() {
 void resetGame() {
   score = 0;
 
+  for (int i = 0; i < LCD_LINES; i++) {
+    for (int j = 0; j < LCD_COLUMNS; j++) {
+      nextFrame[i][j] = ' ';
+      currentFrame[i][j] = ' ';
+    }
+  }
+
   // Initiate player
   player.isAlive = true;
 
@@ -79,6 +89,7 @@ void resetGame() {
   lcd.setCursor(LCD_COLUMNS / 2 - 7, LCD_LINES / 2 - 1);
   lcd.print(F("TANK GAME 3000"));
   delay(3000);
+  lcd.clear();
 }
 
 void gameOver() {
@@ -200,31 +211,44 @@ void bulletCollisionCheck() {
 }
 
 void drawFrame() {
-  lcd.clear();
-  lcd.setCursor(player.x, player.y);
-  lcd.write(player.direction);
-
-  for (auto &e : enemyList) {
-    if (e.isAlive) {
-      lcd.setCursor(e.x, e.y);
-      lcd.write(e.direction);
-
-      if (e.bullet.isAlive) {
-        lcd.setCursor(e.bullet.x, e.bullet.y);
-        lcd.write(Tanks::SHOOT);
+  for (int i = 0; i < LCD_LINES; i++) {
+    for (int j = 0; j < LCD_COLUMNS; j++) {
+      if (currentFrame[i][j] != nextFrame[i][j]) {
+        lcd.setCursor(j, i);
+        lcd.write(nextFrame[i][j]);
+        currentFrame[i][j] = nextFrame[i][j];
       }
+    }
+  }
+}
+
+void generateNextFrame() {
+  for (int i = 0; i < LCD_LINES; i++) {
+    for (int j = 0; j < LCD_COLUMNS; j++) {
+      nextFrame[i][j] = ' ';
+    }
+  }
+  for (auto &e : enemyList) {
+    if (e.bullet.isAlive) {
+      nextFrame[e.bullet.y][e.bullet.x] = Tanks::SHOOT;
+    }
+
+    if (e.isAlive) {
+      nextFrame[e.y][e.x] = e.direction;
     }
   }
 
   if (player.bullet.isAlive) {
-    lcd.setCursor(player.bullet.x, player.bullet.y);
-    lcd.write(Tanks::SHOOT);
+    nextFrame[player.bullet.y][player.bullet.x] = Tanks::SHOOT;
   }
+
+  nextFrame[player.y][player.x] = player.direction;
 }
 
 void loop() {
   if (player.isAlive) {
     readUserInput();
+    generateNextFrame();
     drawFrame();
     gameLogic();
   } else {
