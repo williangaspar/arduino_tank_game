@@ -1,5 +1,5 @@
-#ifndef BULLET_CLASS
-#define BULLET_CLASS
+#ifndef BULLET_H
+#define BULLET_H
 
 #include "Entity.h"
 

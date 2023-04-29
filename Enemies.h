@@ -1,5 +1,5 @@
-#ifndef ENEMY_TANK_CLASS
-#define ENEMY_TANK_CLASS
+#ifndef ENEMIES_H
+#define ENEMIES_H
 
 #include <stdint.h>
 

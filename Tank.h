@@ -1,5 +1,5 @@
-#ifndef TANK_CLASS
-#define TANK_CLASS
+#ifndef TANK_H
+#define TANK_H
 
 #include "Bullet.h"
 #include "Entity.h"
@@ -13,7 +13,7 @@ class Tank : public Game::Entity {
   void destroy();
 };
 
-enum TankAction: uint8_t  {
+enum TankAction : uint8_t {
   MOVE_UP,
   MOVE_DOWN,
   MOVE_LEFT,

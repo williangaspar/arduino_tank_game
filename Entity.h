@@ -1,10 +1,10 @@
-#ifndef GAME_ENTITY_H
-#define GAME_ENTITY_H
+#ifndef ENTITY_H
+#define ENTITY_H
 
 #include <stdint.h>
 
 namespace Game {
-enum Direction: uint8_t {
+enum Direction : uint8_t {
   UP,
   DOWN,
   LEFT,

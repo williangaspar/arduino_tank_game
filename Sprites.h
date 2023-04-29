@@ -1,5 +1,5 @@
-#ifndef SPRITES
-#define SPRITES
+#ifndef SPRITES_H
+#define SPRITES_H
 
 namespace Sprites {
 
@@ -53,6 +53,6 @@ byte spriteBullet[] = {
     B00000,
     B00000};
 
-}  // namespace NSprites
+}  // namespace Sprites
 
 #endif
