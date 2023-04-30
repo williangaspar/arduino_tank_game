@@ -67,6 +67,7 @@ void setup() {
 void resetGame() {
   score = 0;
 
+  // Reset frames
   for (int i = 0; i < LCD_LINES; i++) {
     for (int j = 0; j < LCD_COLUMNS; j++) {
       nextFrame[i][j] = ' ';
